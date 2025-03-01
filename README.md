@@ -16,7 +16,7 @@ This is a **Streamlit-powered AI assistant** that integrates **Google Gemini AI*
 ## 📌 Installation
 ### **1️⃣ Clone the Repository**
 ```bash
-git clone https://github.com/your-username/gemini-ai-voice-assistant.git
+git clone https://github.com/kushagra2503/Ai-Co-pilot-
 cd gemini-ai-voice-assistant
 ```
 
