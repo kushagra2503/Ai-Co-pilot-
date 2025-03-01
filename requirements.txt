@@ -1,0 +1,9 @@
+opencv-python
+numpy
+pillow
+google-generativeai
+pyaudio
+SpeechRecognition
+python-dotenv
+streamlit
+pyautogui
