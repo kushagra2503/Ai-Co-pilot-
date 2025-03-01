@@ -9,7 +9,7 @@ from gtts import gTTS
 from io import BytesIO
 
 # Configure Gemini API
-genai.configure(api_key="YOUR_GOOGLE_API_KEY")
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
 
 # Function to encode image
 def encode_image(image):
@@ -24,7 +24,7 @@ def capture_screenshot():
 
 # Text-to-Speech Function
 def text_to_speech(text):
-    tts = gTTS(text, lang="de")  # Change "de" to your preferred language
+    tts = gTTS(text, lang="en")  # Change language if needed
     audio_bytes = BytesIO()
     tts.write_to_fp(audio_bytes)
     return audio_bytes.getvalue()
@@ -37,28 +37,55 @@ def speech_to_text():
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
     try:
-        return recognizer.recognize_google(audio, language="en")  # Change "en" to "de" for German
+        return recognizer.recognize_google(audio, language="en")
     except sr.UnknownValueError:
         return "Could not recognize speech."
     except sr.RequestError:
         return "Could not request speech recognition results."
 
-# Gemini Assistant Function
-def get_gemini_response(prompt, screenshot=None):
+# Gemini Assistant Function with System Prompt
+def get_gemini_response(prompt, system_prompt, screenshot=None):
     model = genai.GenerativeModel("gemini-2.0-flash")  # Default model
     image_data = {"mime_type": "image/jpeg", "data": screenshot} if screenshot else None
-    response = model.generate_content([prompt, image_data] if screenshot else [prompt])
+    
+    full_prompt = f"{system_prompt}\nUser: {prompt}"
+    
+    response = model.generate_content([full_prompt, image_data] if screenshot else [full_prompt])
+    
     return response.text.strip() if response and response.text else "I couldn't understand."
 
 # Streamlit UI
-st.title("💬 Gen AI Voice Assistant with Screen Capture Feature")
-st.write("Speak a command or type your input below!")
-
-# Text Input Box
-user_input = st.text_input("Type your question here:")
+st.title("💬 Gen AI Voice Assistant with System Prompts")
+st.write("Speak, type, or select a predefined prompt!")
 
 # Sidebar Screenshot Option
 screenshot_enabled = st.sidebar.checkbox("Include Screenshot?", value=False)
+
+# System Prompt Selection
+st.sidebar.subheader("🛠️ System Prompt (AI Personality)")
+system_prompt_options = {
+    "Default AI": "You are a helpful AI assistant.",
+    "Concise AI": "Answer in a brief and direct manner.",
+    "Friendly AI": "Be cheerful and engaging in your responses.",
+    "Tech Support": "Provide technical assistance for software and hardware issues.",
+    "Teacher": "Explain concepts in simple terms as if teaching a beginner.",
+}
+selected_system_prompt = st.sidebar.selectbox("Choose AI Personality:", list(system_prompt_options.keys()))
+system_prompt = system_prompt_options[selected_system_prompt]
+
+# Predefined Prompt Suggestions
+prompt_options = [
+    "What's the latest tech news?",
+    "Summarize this webpage for me.",
+    "Tell me a fun fact.",
+    "How do I fix a slow computer?",
+    "Explain quantum computing in simple terms.",
+    "Translate 'Hello, how are you?' into German.",
+]
+selected_prompt = st.selectbox("💡 Choose a question:", ["Select a prompt..."] + prompt_options)
+
+# Text Input Box
+user_input = st.text_input("Or type your question here:")
 
 # Voice Input Button
 if st.button("🎤 Speak Now"):
@@ -69,21 +96,23 @@ if st.button("🎤 Speak Now"):
     else:
         st.warning("Speech not recognized. Try again.")
 
-# Store text input in session state if provided
-if user_input:
+# Store text input or selected prompt in session state
+if selected_prompt != "Select a prompt...":
+    st.session_state["user_input"] = selected_prompt
+elif user_input:
     st.session_state["user_input"] = user_input
 
 # Gemini AI Response
 if st.button("Ask Bot"):
-    final_input = st.session_state.get("user_input", "")  # Get stored input (voice or text)
+    final_input = st.session_state.get("user_input", "")  # Get stored input (voice, text, or prompt)
 
     if final_input:
-        st.write("📡 Sending request to Bot...")
+        st.write(f"📡 Sending request to Bot using **{selected_system_prompt}** mode...")
         screenshot_data = capture_screenshot() if screenshot_enabled else None
-        response_text = get_gemini_response(final_input, screenshot_data)
+        response_text = get_gemini_response(final_input, system_prompt, screenshot_data)
 
         st.write("**🤖 Bot's Response:**", response_text)
         audio_bytes = text_to_speech(response_text)
         st.audio(audio_bytes, format="audio/mp3")
     else:
-        st.warning("Please enter text or use voice input.")
+        st.warning("Please enter text, select a prompt, or use voice input.")
