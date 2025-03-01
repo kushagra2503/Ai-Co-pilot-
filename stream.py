@@ -9,7 +9,7 @@ from gtts import gTTS
 from io import BytesIO
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyCFWyeKi7S2gSa7_UVb4JSB9KCeh6OVvP0")
+genai.configure(api_key="YOUR_GOOGLE_API_KEY")
 
 # Function to encode image
 def encode_image(image):
