@@ -62,7 +62,7 @@ pip install streamlit google-generativeai SpeechRecognition PyAudio pyautogui op
 1. **Start the Streamlit app** with `streamlit run app.py`.
 2. **Enter a question in the text box** or click **'Speak Now'** to use voice input.
 3. **Enable 'Include Screenshot' (Optional)** in the sidebar.
-4. **Click 'Ask Gemini'** to get a response.
+4. **Click 'Ask Bot'** to get a response.
 5. **Listen to the response** using built-in **text-to-speech**.
 
 ---
@@ -77,6 +77,7 @@ pip install streamlit google-generativeai SpeechRecognition PyAudio pyautogui op
 🔹 Add support for multiple AI models.  
 🔹 Improve accuracy of speech recognition.  
 🔹 Implement real-time chat with Gemini.  
+🔹 Add improvents for deploying it in a cloud platform
 
 ---
 
